@@ -116,6 +116,11 @@ void RootHits::GetHits(Event &event, int nEvents)
    if(rPointer==N_Entries) rPointer=0;
 	int event_nr=tree_event;
 	for(int i=0; i<nEvents; i++){
+        if (row == -1){
+            //cout << "This is an empty event" << endl;
+            rPointer++;
+        }else{
+            //cout << "This is an with hits" << endl;
       do {
          if(DETECTOR==BPIX){
 	         if(tree_ladder==ladder && tree_module>=MIN_MOD && tree_module<=MAX_MOD) {
@@ -187,7 +192,7 @@ void RootHits::GetHits(Event &event, int nEvents)
             HitTree->GetEntry(rPointer++);
             if(rPointer==N_Entries) rPointer=0;
          }
-	   } while(tree_event==event_nr);
+      } while(tree_event==event_nr);}
       event_nr=tree_event;
 	}
 	rPointer--;

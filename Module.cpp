@@ -7,11 +7,13 @@
 
 using namespace std;
 
+//#define CHIPS_PER_MODULE 16
+
 long ro_time;
 
 Module::Module()
 {
-   ROCs.resize(CHIPS_PER_MODULE);
+   ROCs.resize(16);
 	TBMs.resize(LINKS_PER_MODULE);
 }
 
@@ -47,6 +49,7 @@ void Module::AddHits(Event &event)                         // called once per ev
    }
 	hit_iterator hit;
 	for(hit=event.hits[Id].begin(); hit!=event.hits[Id].end(); hit++){
+       // if (hit->row == -1) continue;
 	   ROCs[hit->roc].AddHit(*hit);
 	}
 }
@@ -63,11 +66,11 @@ void Module::Clock()
 void Module::StatOut()
 {
 	char txt[50];
-	statistics stat[CHIPS_PER_MODULE]; 
+	statistics stat[16]; 
 	statistics mod_stat;
 	mod_stat.Reset();
 	int i=0;
-	for(int i=0; i<CHIPS_PER_MODULE; i++) {
+	for(int i=0; i<16; i++) {
 	   cout << endl<<"**********************************************************"<<endl<<endl;
 		ROCs[i].StatOut(stat[i]);
 		sprintf(txt, "Roc number %d",i);
