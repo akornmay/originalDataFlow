@@ -1,5 +1,7 @@
 #include "DoubleColumn.h"
 
+#include <map>
+
 #include "TH1I.h"
 #include "TH2I.h"
 
@@ -87,7 +89,26 @@ void DoubleColumn::AddHit(pxhit &hit)
       hit.CD_Select=CD_Select;                   // finally insert hit into pixel array
    }
    hits.push_back(hit);
+   sorthitsbyrow();
 }
+
+void DoubleColumn::sorthitsbyrow(){
+
+  std::multimap<int,pxhit> sortedhits;
+
+  for(pixiter iHit = hits.begin(); iHit != hits.end(); ++iHit)
+    {
+      sortedhits.insert(std::pair<int,pxhit>(iHit->row,*iHit));
+    }
+  hits.clear();
+
+  for(std::multimap<int,pxhit>::reverse_iterator rit = sortedhits.rbegin(); rit != sortedhits.rend(); ++rit)
+    {
+      hits.push_back(rit->second);
+    }
+
+}
+
 
 int DoubleColumn::getPixelReadoutDelay() {
   int distance = nextPixelReadoutRow - lastPixelReadoutRow;

@@ -233,6 +233,9 @@ public:
    int pixelReadoutTimer;
    int lastPixelReadoutRow;
    int nextPixelReadoutRow;
+
+   void sorthitsbyrow();
+
 };
 
 #endif /*DOUBLE_COLUMN_H_*/
