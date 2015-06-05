@@ -28,6 +28,7 @@ class pxhit {
 
 typedef std::vector<pxhit> hit_vector;
 typedef std::vector<pxhit>::iterator hit_iterator;
+typedef std::vector<pxhit>::const_iterator hit_const_iterator;
 
 class Event 
 {

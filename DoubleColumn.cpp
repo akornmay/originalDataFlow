@@ -22,6 +22,7 @@ void DoubleColumn::Init(int i, int roc, long *bx)
    CD_Status = CD_SELECT_B;
    stat.Reset();
    n_reset=0;
+   lastPixelReadoutRow = 0;
    TS.Reset();
 }
 
@@ -40,7 +41,10 @@ void DoubleColumn::AddHit(pxhit &hit)
       }
    }
    for(iHit=pendinghits.begin(); iHit!=pendinghits.end(); iHit++){
-      if(iHit->row==hit.row) return;             // pixel overwrite
+      if(iHit->row==hit.row) {
+	 stat.px_overwrite++;                    // pixel overwrite
+	 return;             
+       }
    }
    if(DB_Full) {                                 // book keeping only
       stat.DB_overflow++;
@@ -85,6 +89,27 @@ void DoubleColumn::AddHit(pxhit &hit)
    hits.push_back(hit);
 }
 
+int DoubleColumn::getPixelReadoutDelay() {
+  int distance = nextPixelReadoutRow - lastPixelReadoutRow;
+  lastPixelReadoutRow = nextPixelReadoutRow;
+  for (int i=0; i<nDcRowBoundaries; ++i) {
+    if (distance<dcRowReadoutBoundaries[i]) {
+      return dcRowReadoutDelays[i];
+    }
+  }
+  std::cerr << "WAIT... WHAT?!?!?!" << std::endl;
+  return -1;
+}
+
+void DoubleColumn::performReadoutDelay() {
+  pixelReadoutTimer--;
+  if (pixelReadoutTimer<=0) {
+    if (!GetNextPxHit()) std::cerr << "GetNextPxHit() and SpyNextPxHit() mismatch" << std::endl;
+    if (SpyNextPxHit()) {
+      pixelReadoutTimer = getPixelReadoutDelay();
+    } else CD_Active = false;
+  }
+}
 
 void DoubleColumn::Clock()
 {
@@ -99,14 +124,15 @@ void DoubleColumn::Clock()
    if(RO_Mode) return;                           // do nothing, column is blocked
    NewEvent = true;
    if(CD_Active){                                // intimeStamps.Initserts hit into DB and deletes it from px array
-      if(CD_Status>CD_SELECT_B) CD_Active=GetNextPxHit();
-      CD_Status ^= 0x10;
+     performReadoutDelay();
    } else if(hits.size()>0) {
       CD_Active=true;
       CD_Status^=0x01;
-      pixiter iHit;                              // send out LOAD to dcol
-      for(iHit=hits.begin(); iHit!=hits.end(); iHit++){
-         if(iHit->CD_Select==CD_Status) iHit->CD_Select+=0x10;
+      pixelReadoutTimer = 0;
+      lastPixelReadoutRow = 0;
+      if (SpyNextPxHit()) {
+	pixelReadoutTimer = getPixelReadoutDelay();
+	performReadoutDelay();
       }
    }
    long timeStamp=TS.Expiration(*clk);           // returns TS if expired, 0 otherwise
@@ -131,6 +157,7 @@ void DoubleColumn::Reset()
    }
    hits.clear();
    pendinghits.clear();
+   lastPixelReadoutRow = 0;
    if(RO_Mode) {
      stat.ro_Reset += nPix;
    } else {
@@ -159,19 +186,32 @@ bool DoubleColumn::Readout(long timeStamp, pxhit &hit)
 }
 
 
+// returns true if there is any pixel to be read
+bool DoubleColumn::SpyNextPxHit()
+{
+  pix_const_iter iHit;
+  int jj=0;
+  for(iHit=hits.begin(); iHit!=hits.end(); iHit++){
+    if(iHit->CD_Select==CD_Status){
+      nextPixelReadoutRow = iHit->row;
+      return true;
+    }
+  }
+  nextPixelReadoutRow = 0;
+  return false;
+}
+
 bool DoubleColumn::GetNextPxHit()                // returns false for last hit in event, true otherwise
 {
    pixiter iHit;
    int jj=0;
+
    for(iHit=hits.begin(); iHit!=hits.end(); iHit++){
-      if(iHit->CD_Select==CD_Status){
-	     DB.InsertHit((*iHit));
-	     iHit=hits.erase(iHit);
-	     while(iHit!=hits.end()){
-	        if(iHit->CD_Select==CD_Status) return true;
-	        iHit++;
-	     }
-      }
+     if(iHit->CD_Select==CD_Status){
+       DB.InsertHit((*iHit));
+       iHit=hits.erase(iHit);
+       return true;
+     }
    }
    return false;
 }
