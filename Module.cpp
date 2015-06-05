@@ -71,7 +71,7 @@ void Module::StatOut()
 	mod_stat.Reset();
 	int i=0;
 	for(int i=0; i<16; i++) {
-	   cout << endl<<"**********************************************************"<<endl<<endl;
+	   std::cout << std::endl<<"**********************************************************"<<std::endl<<std::endl;
 		ROCs[i].StatOut(stat[i]);
 		sprintf(txt, "Roc number %d",i);
 		stat[i].PrintStat(txt);

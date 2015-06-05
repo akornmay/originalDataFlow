@@ -52,6 +52,13 @@ const int TBM_READOUT_GAP(1);                           // gap between TBM trail
 const int ROC_HEADER_LENGTH(3);                         // ROC header length in bits
 const int CLOCKS_PER_HIT(6);                            // #clocks per pixel hit
 
+//
+// Double column mechanism parameters
+//
+const int nDcRowBoundaries = 3;
+const int dcRowReadoutBoundaries[] = { 18, 135, 160 };
+const int dcRowReadoutDelays[] = { 2, 3, 4 };
+
 enum {BPIX=0, FPIX};
 
 #endif /*COMMON_DEFS_H_*/

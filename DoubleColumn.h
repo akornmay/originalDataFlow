@@ -6,8 +6,9 @@
 
 typedef std::list<pxhit> pixlist;
 typedef std::list<pxhit>::iterator pixiter;
+typedef std::list<pxhit>::const_iterator pix_const_iter;
 
-enum {CD_SELECT_A=0, CD_SELECT_B};
+enum {CD_SELECT_A=0, CD_SELECT_B=1};
 
 class TSlist
 {
@@ -184,6 +185,8 @@ public:
     * Do the column drain. Copy pixel hit into data buffer and delete it from pixel array
     */
    bool GetNextPxHit();			     // receive next hit from column drain
+   bool SpyNextPxHit();			     // receive next hit from column drain
+   void performReadoutDelay() ;
 	
    /** @brief Set time stamp
     * 
@@ -225,6 +228,11 @@ public:
    bool wtg;
    long *clk;             ///< Bunch crossing counter
    statistics stat;       ///< Structure doing the book keeping
+
+   int getPixelReadoutDelay();
+   int pixelReadoutTimer;
+   int lastPixelReadoutRow;
+   int nextPixelReadoutRow;
 };
 
 #endif /*DOUBLE_COLUMN_H_*/
