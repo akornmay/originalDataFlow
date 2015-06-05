@@ -2,6 +2,7 @@
 #include "CommonDefs.h"
 #include <cstdlib>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 

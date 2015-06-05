@@ -6,6 +6,8 @@
 #include "TTree.h"
 #include "CommonDefs.h"
 #include <list>
+#include <fstream>
+#include <iostream>
 
 class RootHits
 {
@@ -48,7 +50,7 @@ public:
 	void ReadEvent(Event &event);
 	void Terminate();	
 private:
-	ifstream is[4];
+	std::ifstream is[4];
 };
 
 #endif /*EVENTREADER_H_*/
