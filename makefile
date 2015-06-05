@@ -1,6 +1,6 @@
 # define compile command
 
-CC = colorgcc
+CC = g++
 
 CFLAGS  = -g -Wno-deprecated
 #CFLAGS  = -O3 -Wno-deprecated -funroll-loops 
