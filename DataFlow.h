@@ -61,7 +61,7 @@ const std::string SOFTWARE_VERSION="V2.0   23-Aug-2012   no TAG";
 Event event;
 int layer,module[4];
 long clk;
-ofstream hitFile;
+std::ofstream hitFile;
 TFile *histoFile;
 TH1I *h1, *h2, *h3, *h4, *h5;
 TH1I *g1, *g2, *g3, *g4, *g5;

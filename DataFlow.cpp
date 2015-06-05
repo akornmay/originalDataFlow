@@ -2,6 +2,7 @@
 #include "CommonDefs.h"
 #include <cstdlib>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -42,7 +43,7 @@ int main(int argc, char **argv)
 //                   main loop over bunch crossings
 // *****************************************************************************************************	
 
-   for(clk=1; clk< MAX_EVENT; clk++){
+   for(clk=0; clk< MAX_EVENT; clk++){
       if(clk<50000 && !(clk %5000)) cout <<"Processing event number "<< clk << " ....."<<endl;
       else if(clk<100000 && !(clk %10000)) cout <<"Processing event number "<< clk << " ....."<<endl;
       else if(!(clk %50000)) cout <<"Processing event number "<< clk << " ....."<<endl;
