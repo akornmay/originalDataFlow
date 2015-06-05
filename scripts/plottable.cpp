@@ -126,7 +126,9 @@ mg->Draw("ACP");
 mg->GetXaxis()->SetLimits(0.0,250);
 
 //legend
-TLegend * leg = new TLegend(0.1,0.5,0.40,0.9);
+ char legendtitle[256];
+ sprintf(legendtitle," WBC %d",WBC);
+   TLegend * leg = new TLegend(0.1,0.5,0.40,0.9,legendtitle);
 
 leg->AddEntry(g[0],"Total inefficiency","LP");
 leg->AddEntry(g[1],"Pixel overwrite","LP");

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-for ii in 99 150 175 200 225
+#for ii in 99 150 175 200 225
+for ii in 156
 
 do
 

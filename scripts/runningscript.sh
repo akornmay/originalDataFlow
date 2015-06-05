@@ -6,8 +6,8 @@ rm -r ../scratch/*
 
 #we run the simulation with all the differnt steering files
 
-for ii in 99 150 175 200 225
-#for ii in 99
+#for ii in 99 150 175 200 225
+for ii in 156
 
 do
     echo "Running for WBC ${ii}"
@@ -23,8 +23,8 @@ do
 
     done
 
-    cp /Users/Andreas/Work/simulationTB/codevalidation/c++/XraySim/maketable.sh /Users/Andreas/Work/simulationTB/originalDataFlow/scratch/WBC${ii}/
-    cp /Users/Andreas/Work/simulationTB/codevalidation/c++/XraySim/plottable.cpp /Users/Andreas/Work/simulationTB/originalDataFlow/scratch/WBC${ii}/
+    cp /Users/Andreas/Work/simulationTB/originalDataFlow/scripts/maketable.sh /Users/Andreas/Work/simulationTB/originalDataFlow/scratch/WBC${ii}/
+    cp /Users/Andreas/Work/simulationTB/originalDataFlow/scripts/plottable.cpp /Users/Andreas/Work/simulationTB/originalDataFlow/scratch/WBC${ii}/
 
     cd /Users/Andreas/Work/simulationTB/originalDataFlow/scratch/WBC${ii}/
     ./maketable.sh WBC${ii}.txt ${ii}
