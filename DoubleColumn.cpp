@@ -24,7 +24,7 @@ void DoubleColumn::Init(int i, int roc, long *bx)
    CD_Status = CD_SELECT_B;
    stat.Reset();
    n_reset=0;
-   lastPixelReadoutRow = 0;
+   lastPixelReadoutRow = -1;
    TS.Reset();
 }
 
@@ -111,13 +111,38 @@ void DoubleColumn::sorthitsbyrow(){
 
 
 int DoubleColumn::getPixelReadoutDelay() {
-  int distance = nextPixelReadoutRow - lastPixelReadoutRow;
-  lastPixelReadoutRow = nextPixelReadoutRow;
-  for (int i=0; i<nDcRowBoundaries; ++i) {
-    if (distance<dcRowReadoutBoundaries[i]) {
-      return dcRowReadoutDelays[i];
+
+  int pixelWait = 2;
+
+  if(lastPixelReadoutRow == -1)
+    {
+      if(nextPixelReadoutRow < cd_token_pix_offset){ pixelWait += 0;}
+      else if(nextPixelReadoutRow < cd_token_pix_offset + cd_token_pix_per_clk){ pixelWait += 1;}
+      else { pixelWait += 2;}
+
+      lastPixelReadoutRow = nextPixelReadoutRow;
+      return pixelWait;
+    } 
+  else
+    {
+      int distance = nextPixelReadoutRow - lastPixelReadoutRow;
+      if(distance > cd_token_pix_per_clk)
+	{
+	  pixelWait +=1;
+	}
+      else
+	{
+	  pixelWait +=0;
+	}
+      lastPixelReadoutRow = nextPixelReadoutRow;
+      return pixelWait;
     }
-  }
+
+  // for (int i=0; i<nDcRowBoundaries; ++i) {
+  //   if (distance<dcRowReadoutBoundaries[i]) {
+  //     return dcRowReadoutDelays[i];
+  //   }
+  // }
   std::cerr << "WAIT... WHAT?!?!?!" << std::endl;
   return -1;
 }
@@ -125,10 +150,25 @@ int DoubleColumn::getPixelReadoutDelay() {
 void DoubleColumn::performReadoutDelay() {
   pixelReadoutTimer--;
   if (pixelReadoutTimer<=0) {
-    if (!GetNextPxHit()) std::cerr << "GetNextPxHit() and SpyNextPxHit() mismatch" << std::endl;
-    if (SpyNextPxHit()) {
-      pixelReadoutTimer = getPixelReadoutDelay();
-    } else CD_Active = false;
+    //if (!GetNextPxHit()) std::cerr << "GetNextPxHit() and SpyNextPxHit() mismatch" << std::endl;
+    GetNextPxHit();
+    if (SpyNextPxHit()) 
+      {
+	pixelReadoutTimer = getPixelReadoutDelay();
+      } 
+    else
+      {    
+	if(nextPixelReadoutRow < (rowsPerDC - cd_token_pix_per_clk))
+	  {
+	    pixelReadoutTimer = 1;
+	    nextPixelReadoutRow = rowsPerDC;
+	  }
+	else
+	  {
+	    nextPixelReadoutRow = 0;
+	    CD_Active = false;
+	  }
+      }
   }
 }
 
@@ -150,10 +190,14 @@ void DoubleColumn::Clock()
       CD_Active=true;
       CD_Status^=0x01;
       pixelReadoutTimer = 0;
-      lastPixelReadoutRow = 0;
+      lastPixelReadoutRow = -1;
+
+      for(pixiter iHit=hits.begin(); iHit!=hits.end(); iHit++){
+	if(iHit->CD_Select==CD_Status) iHit->CD_Select|=0x10;
+      }
       if (SpyNextPxHit()) {
 	pixelReadoutTimer = getPixelReadoutDelay();
-	performReadoutDelay();
+	//performReadoutDelay();
       }
    }
    long timeStamp=TS.Expiration(*clk);           // returns TS if expired, 0 otherwise
@@ -178,7 +222,7 @@ void DoubleColumn::Reset()
    }
    hits.clear();
    pendinghits.clear();
-   lastPixelReadoutRow = 0;
+   lastPixelReadoutRow = -1;
    if(RO_Mode) {
      stat.ro_Reset += nPix;
    } else {
@@ -212,13 +256,15 @@ bool DoubleColumn::SpyNextPxHit()
 {
   pix_const_iter iHit;
   int jj=0;
+  int CD_Status_high= CD_Status|0x10;
+
   for(iHit=hits.begin(); iHit!=hits.end(); iHit++){
-    if(iHit->CD_Select==CD_Status){
+    if(iHit->CD_Select==CD_Status_high){
       nextPixelReadoutRow = iHit->row;
       return true;
     }
   }
-  nextPixelReadoutRow = 0;
+  //  nextPixelReadoutRow = 0;
   return false;
 }
 
@@ -226,9 +272,9 @@ bool DoubleColumn::GetNextPxHit()                // returns false for last hit i
 {
    pixiter iHit;
    int jj=0;
-
+   int CD_Status_high=CD_Status|0x10;
    for(iHit=hits.begin(); iHit!=hits.end(); iHit++){
-     if(iHit->CD_Select==CD_Status){
+     if(iHit->CD_Select==CD_Status_high){
        DB.InsertHit((*iHit));
        iHit=hits.erase(iHit);
        return true;
@@ -252,6 +298,7 @@ int DoubleColumn::SetTS(long &timeStamp, bool &tg, int &cd)          // returns 
    }
 
    TS.InsertTS(timeStamp);                                 // insert time stamp
+   TS_Full=TS.IsFull();
    CD_Select^=0x01;                                        // switch channel for column drain
    return 0;                                               // return 0 if TS set
 }
