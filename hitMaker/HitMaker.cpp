@@ -76,5 +76,6 @@ void HitMaker::GenerateEvents(unsigned long nEvents, TreeMaker& aTreeMaker) {
 	//	aTreeMaker.AddHit(defaultAdc, hitCol, hitRow);
       }
     }
+    aTreeMaker.NextEvent();
   }
 }
