@@ -38,8 +38,8 @@ void DoubleColumn::AddHit(pxhit &hit)
    pixiter iHit;
    for(iHit=hits.begin(); iHit!=hits.end(); iHit++){
       if(iHit->row==hit.row) {                   // pixel overwrite
-         stat.px_overwrite++;
-         return;
+	stat.px_overwrite++;
+	return;
       }
    }
    for(iHit=pendinghits.begin(); iHit!=pendinghits.end(); iHit++){
@@ -128,7 +128,7 @@ int DoubleColumn::getPixelReadoutDelay() {
       int distance = nextPixelReadoutRow - lastPixelReadoutRow;
       if(distance > cd_token_pix_per_clk)
 	{
-	  pixelWait +=1;
+	  pixelWait += distance/cd_token_pix_per_clk ;
 	}
       else
 	{
@@ -160,7 +160,7 @@ void DoubleColumn::performReadoutDelay() {
       {    
 	if(nextPixelReadoutRow < (rowsPerDC - cd_token_pix_per_clk))
 	  {
-	    pixelReadoutTimer = 1;
+	    pixelReadoutTimer = (rowsPerDC - nextPixelReadoutRow)/cd_token_pix_per_clk;
 	    nextPixelReadoutRow = rowsPerDC;
 	  }
 	else
