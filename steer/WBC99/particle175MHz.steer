@@ -1,0 +1,35 @@
+#   Example of a BPIX simulation with pile-up generation
+#   Peak-lumi and signal/total cross sections define the mean number of
+#   pile-up events. They are generated according to a Poisson distribution
+#   Hits from SIGNAL_FILENAME are mixed with hits from MINBIAS_FILENAME
+
+#
+# physics parameters
+#
+	MAX_EVENT = 1000000;			                         // #events to be processed
+        CREATE_PILEUP = 0;                                               // generate pile-up
+	PEAK_LUMI = 0.7;			                         // peak luminosity in 10^34
+	SIGNAL_XSECTION = 1.5;		                                 // signal (jet) X-section in mb
+	TOTAL_XSECTION = 80.0;		                                 // MinBias X-section in mb
+        OUTPUT_FILENAME = /Users/Andreas/Work/simulationTB/originalDataFlow/scratch/WBC99/Particle175MHz.root 
+        SIGNAL_FILENAME = /Users/Andreas/Work/simulationTB/originalDataFlow/data/ParticleData175MHz.root 
+        MINBIAS_FILENAME = MinBias_Z2star_Pythia6_8TeV_noPU_digis.root   // File with MinBias hits.
+#                                      				         // For several signal and/or MinBias files 
+#                                                                        //repeat these statements for each file
+#
+# Trigger and LHC parameters	
+#
+        WBC = 99 
+	TRIGGER_RATE = 100;			                         // L1 trigger rate in kHz
+	BUNCH_SPACING = 25;	                                         // Using 50 ns bunch structure
+#
+# Detector parameters
+#
+	DETECTOR = BPIX
+	LAYER = 2;	
+	LADDER = 2;
+	MIN_MODULE = 3;
+	MAX_MODULE = 3;
+
+
+	
