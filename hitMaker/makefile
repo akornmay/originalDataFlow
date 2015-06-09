@@ -20,7 +20,7 @@ CFLAGS       += $(ROOTCFLAGS)
 FillMaker: $(OBJ) makefile
 	$(CC) $(OBJ) $(LDFLAGS) $(ROOTGLIBS) $(ROOTLIBS) -o FillMaker
 
-%.o: %.cpp %.h 
+%.o: %.cpp %.h global_constants.h
 	$(CC) $(ROOTCFLAGS) $(CFLAGS) -c -o $@ $<
 
 clean:	
