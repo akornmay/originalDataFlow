@@ -6,6 +6,7 @@
 #include <TRandom3.h>
 #include <iostream>
 #include "TreeMaker.h"
+#include "global_constants.h"
 
 #undef FULL_DEBUG
 
@@ -35,13 +36,6 @@ class HitMaker {
   TRandom3 myDice_;
 
   int IntRand(int);
-
-  const int nColumns = 52;
-  const int nRows = 80;
-  const double pixelLength_ = 0.015; // cm
-  const double pixelWidth_  = 0.010; // cm
-  const double clockSpeed_  = 40;    // MHz
-  const short defaultAdc = 50;
 
   const int maxClusterSize = 6;
   const int templateClusterCoord1[6] = { +0, +1, +0, +1, +0, +1};
