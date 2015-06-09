@@ -89,5 +89,6 @@ void ROC::StatOut(statistics &stat)
 	dcol_iter iDcol;
 	for(iDcol=dcols.begin(); iDcol!=dcols.end(); iDcol++)
 		stat += iDcol->StatOut();
-	stat.px_fluence=(double)n_hits/((double)MAX_EVENT*25E-3)/0.6561;
+	//	stat.px_fluence=(double)n_hits/((double)MAX_EVENT*25E-3)/0.6561;
+	stat.px_fluence=(double)n_hits/((double)MAX_EVENT*25E-3)/0.624;
 }
