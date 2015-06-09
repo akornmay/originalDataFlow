@@ -1,6 +1,8 @@
+
 #include "HitMaker.h"
 
 HitMaker::HitMaker(double hitRate, std::vector<double>& probs) {
+  myDice_.SetSeed(0);
   clusterSizeDistribution_ = nullptr;
   SetClusterSizeProbabilities(probs);
   double averageClusterSize = clusterSizeDistribution_->GetMean();
@@ -19,6 +21,7 @@ HitMaker::HitMaker(double hitRate, std::vector<double>& probs) {
 
 HitMaker::HitMaker() {
   clusterSizeDistribution_ = nullptr;
+  myDice_.SetSeed(0);
 }
 
 HitMaker::~HitMaker() {
