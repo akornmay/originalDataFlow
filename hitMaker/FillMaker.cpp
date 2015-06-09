@@ -14,7 +14,8 @@ int main(int argc, char* argv[]) {
 
   if (argc<4) {
     std::cout << "Syntax: " << argv[0]
-	      << " nEvents pixelRate p1 p2 p3 ..." << std::endl;
+	      << " nEvents pixelRate p1 p2 p3 ...\n"
+	      << " for ii in ;do ./FillMaker 5000000 ${ii} 1 4 3 2 && mv aTree.root ParticleData${ii}MHz.root; done" << std::endl;
     return -1;
   }
 
