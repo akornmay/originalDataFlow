@@ -1,4 +1,5 @@
 #include "TreeMaker.h"
+#include "global_constants.h"
 
 TreeMaker::TreeMaker() {
   myTree_ = new TTree();
@@ -20,11 +21,13 @@ TreeMaker::TreeMaker() {
 }
 
 void TreeMaker::AddHit(short adc, short col, short row) {
-  adc_ = adc;
-  col_ = col;
-  row_ = row;
-  EventHits_++;
-  myTree_->Fill();
+  if ((col>0)&&(col<nColumns)&&(row>0)&&(row<nRows)) {
+    adc_ = adc;
+    col_ = col;
+    row_ = row;
+    EventHits_++;
+    myTree_->Fill();
+  }
 }
 
 int TreeMaker::NextEvent() {
