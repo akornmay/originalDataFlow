@@ -20,8 +20,8 @@ TreeMaker::TreeMaker() {
   EventHits_ = 0;
 }
 
-void TreeMaker::AddHit(short adc, short col, short row) {
-  if ((col>0)&&(col<nColumns)&&(row>0)&&(row<nRows)) {
+void TreeMaker::AddHit(short adc, short col, short row, bool fake) {
+  if (fake||((col>0)&&(col<nColumns)&&(row>0)&&(row<nRows))) {
     adc_ = adc;
     col_ = col;
     row_ = row;
@@ -32,7 +32,7 @@ void TreeMaker::AddHit(short adc, short col, short row) {
 
 int TreeMaker::NextEvent() {
   if (EventHits_==0) {
-    AddHit(noHit, noHit, noHit);
+    AddHit(noHit, noHit, noHit, true);
   }
   EventHits_=0;
   Event_++;

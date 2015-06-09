@@ -74,7 +74,7 @@ void HitMaker::GenerateEvents(unsigned long nEvents, TreeMaker& aTreeMaker) {
       }
       DEBUG_PRINT(clusterOrientation);
       for (int s=0; s<clusterSize; ++s) {
-	aTreeMaker.AddHit(defaultAdc, hitCol+thisClusterCol[s], hitRow+thisClusterRow[s]);
+	aTreeMaker.AddHit(defaultAdc, hitCol+thisClusterCol[s], hitRow+thisClusterRow[s], false);
 	DEBUG_PRINT2(hitCol+thisClusterCol[s], hitRow+thisClusterRow[s]);
 	//	aTreeMaker.AddHit(defaultAdc, hitCol, hitRow);
       }

@@ -17,7 +17,7 @@ class TreeMaker {
   TreeMaker();
   ~TreeMaker();
   TTree& GetTree();
-  void AddHit(short adc, short col, short row);
+  void AddHit(short adc, short col, short row, bool fake);
   int NextEvent();
  private:
   TTree* myTree_;
