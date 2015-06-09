@@ -36,7 +36,7 @@ class HitMaker {
 
   int IntRand(int);
 
-  const int nColumns = 56;
+  const int nColumns = 52;
   const int nRows = 80;
   const double pixelLength_ = 0.015; // cm
   const double pixelWidth_  = 0.010; // cm
