@@ -26,6 +26,9 @@ void DoubleColumn::Init(int i, int roc, long *bx)
    n_reset=0;
    lastPixelReadoutRow = -1;
    TS.Reset();
+   counter = 0;
+   hits.clear();
+   pendinghits.clear();
 }
 
 void DoubleColumn::AddHit(pxhit &hit)
@@ -44,13 +47,13 @@ void DoubleColumn::AddHit(pxhit &hit)
    }
    for(iHit=pendinghits.begin(); iHit!=pendinghits.end(); iHit++){
       if(iHit->row==hit.row) {
-	 stat.px_overwrite++;                    // pixel overwrite
-	 return;             
+	//	stat.px_overwrite++;                    // pixel overwrite
+	return;             
        }
    }
    if(DB_Full) {                                 // book keeping only
-      stat.DB_overflow++;
-      return;
+     stat.DB_overflow++;
+     return;
    }
    if(n_reset>0) {                               // book keeping only
       stat.ro_Reset++;
@@ -90,23 +93,22 @@ void DoubleColumn::AddHit(pxhit &hit)
    }
    hits.push_back(hit);
    sorthitsbyrow();
+
 }
+
 
 void DoubleColumn::sorthitsbyrow(){
 
   std::multimap<int,pxhit> sortedhits;
-
   for(pixiter iHit = hits.begin(); iHit != hits.end(); ++iHit)
     {
       sortedhits.insert(std::pair<int,pxhit>(iHit->row,*iHit));
     }
   hits.clear();
-
-  for(std::multimap<int,pxhit>::reverse_iterator rit = sortedhits.rbegin(); rit != sortedhits.rend(); ++rit)
+  for(std::multimap<int,pxhit>::iterator it = sortedhits.begin(); it != sortedhits.end(); ++it)
     {
-      hits.push_back(rit->second);
+      hits.push_back(it->second);
     }
-
 }
 
 
@@ -138,11 +140,6 @@ int DoubleColumn::getPixelReadoutDelay() {
       return pixelWait;
     }
 
-  // for (int i=0; i<nDcRowBoundaries; ++i) {
-  //   if (distance<dcRowReadoutBoundaries[i]) {
-  //     return dcRowReadoutDelays[i];
-  //   }
-  // }
   std::cerr << "WAIT... WHAT?!?!?!" << std::endl;
   return -1;
 }
@@ -150,7 +147,6 @@ int DoubleColumn::getPixelReadoutDelay() {
 void DoubleColumn::performReadoutDelay() {
   pixelReadoutTimer--;
   if (pixelReadoutTimer<=0) {
-    //if (!GetNextPxHit()) std::cerr << "GetNextPxHit() and SpyNextPxHit() mismatch" << std::endl;
     GetNextPxHit();
     if (SpyNextPxHit()) 
       {
@@ -176,22 +172,23 @@ void DoubleColumn::Clock()
 {
    TSSize->Fill(TS.GetNEvents());
    DBSize->Fill(DB.GetSize());
-
    if(n_reset>0){                                // reset ongoing, takes 'n_reset' clocks to complete
       n_reset--;
       if(n_reset==0) Reset();
       return;
    } 
-   if(RO_Mode) return;                           // do nothing, column is blocked
+
+   if(RO_Mode){ return; }                          // do nothing, column is blocked
    NewEvent = true;
    if(CD_Active){                                // intimeStamps.Initserts hit into DB and deletes it from px array
      performReadoutDelay();
    } else if(hits.size()>0) {
+     //     cout << "Found new hits" << endl;
       CD_Active=true;
       CD_Status^=0x01;
       pixelReadoutTimer = 0;
       lastPixelReadoutRow = -1;
-
+      
       for(pixiter iHit=hits.begin(); iHit!=hits.end(); iHit++){
 	if(iHit->CD_Select==CD_Status) iHit->CD_Select|=0x10;
       }
@@ -200,25 +197,36 @@ void DoubleColumn::Clock()
 	//performReadoutDelay();
       }
    }
+
    long timeStamp=TS.Expiration(*clk);           // returns TS if expired, 0 otherwise
    if(timeStamp>0){
-      if(DB.L1_verify(timeStamp)){               // clear hits if no trigger, mark for read out otherwise
-         RO_Mode=true;                           // set readout mode and store time stamp
-         RO_TS = timeStamp;
-      }
+     if(DB.L1_verify(timeStamp)){               // clear hits if no trigger, mark for read out otherwise
+       RO_Mode=true;                           // set readout mode and store time stamp
+       RO_TS = timeStamp;
+     }
    }
+   
+   
+
+
    DB_Full = DB.IsFull();                        // initiate reset if data buffer full
-   if(DB_Full) n_reset=3;
+   if(DB_Full)
+     {
+       //std::cout << "DATA BUFFER FULL," << *clk << "sending reset in col  " << Id << " total number of DB full " << ++counter<< std::endl;
+       n_reset=reset_bx;
+     }
    TS_Full = TS.IsFull();                        // block column if TS buffer full
 }
 
 
 void DoubleColumn::Reset()
 {
+  counter++;
    TS.Reset();
    int nPix=DB.Reset();                          // number of lost hits in data buffer and pixel array
+   //   std::cout << "Reset: " << nPix << "from buffer @" << counter << std::endl;
    for(pixlist::iterator iHit=hits.begin(); iHit!=hits.end(); iHit++) {
-      if(!iHit->wrongTS) nPix++;
+     if(!iHit->wrongTS) nPix++;
    }
    hits.clear();
    pendinghits.clear();
@@ -240,12 +248,19 @@ void DoubleColumn::Reset()
 
 bool DoubleColumn::Readout(long timeStamp, pxhit &hit)
 {
+  //  if(RO_Mode) {cout << "RO MODE but TS do not match " << endl;} 
+  //if(RO_TS==timeStamp) {cout << "TS match but no RO mode " << endl;} 
+  
+  //cout << "RO mode is " << RO_Mode <<  "RO_TS is " << RO_TS << ": TimeStamp " << timeStamp << endl;
    if(RO_Mode && (RO_TS==timeStamp)){
       if(DB.Readout(timeStamp, hit)) return true;
       else {
-         n_reset=3;
+         n_reset= reset_bx;
          return false;
       }
+   }
+   else {
+
    }
    return false;
 }
@@ -275,6 +290,7 @@ bool DoubleColumn::GetNextPxHit()                // returns false for last hit i
    int CD_Status_high=CD_Status|0x10;
    for(iHit=hits.begin(); iHit!=hits.end(); iHit++){
      if(iHit->CD_Select==CD_Status_high){
+       //   cout << "moving hit to DB " ; iHit->printhit();
        DB.InsertHit((*iHit));
        iHit=hits.erase(iHit);
        return true;
@@ -312,7 +328,7 @@ int DoubleColumn::SetTS(long &timeStamp, bool &tg, int &cd)          // returns 
 DataBuffer::DataBuffer()
 {
    for(int i=0; i<DATA_BUFFER_SIZE; i++) {
-      hits[i].clear();
+      hits[i].init();
    }
    iWrite=iRead=entries=0;
 }
@@ -322,28 +338,29 @@ int DataBuffer::Reset()	                         // clears DataBuffer and return
 {
    int ntot=0;
    for(int i=0; i<entries; i++){
-       if(!hits[iRead++].wrongTS) {
-          ntot++;
-       }
-       if(iRead==DATA_BUFFER_SIZE) iRead=0;
+     if(!hits[iRead].wrongTS && hits[iRead].timeStamp != 0) {                // counts the number of hits with correct TS in the data buffer 
+       ntot++;
+     }
+     //     cout << "RESET" ;hits[iRead].printhit();
+     iRead++;
+     if(iRead==DATA_BUFFER_SIZE) iRead=0;
    }
    for(int i=0; i<DATA_BUFFER_SIZE; i++) {
-      hits[i].clear();
+     hits[i].clear();
    }
    iWrite=iRead=entries=0;
    return ntot;
 }
 
-
 bool DataBuffer::L1_verify(long TS)              // checks trigger and marks them for r/o
 {                                                // or clears them from the data buffer
-   while(hits[iRead].timeStamp==TS){
-	   if(hits[iRead].trigger==1) return true;
-	   hits[iRead++].clear();
-	   entries--;
-	   if(iRead==DATA_BUFFER_SIZE) iRead=0;
-   }
-   return false;
+  while(hits[iRead].timeStamp==TS){
+    if(hits[iRead].trigger==1) return true;
+    hits[iRead++].clear();
+    entries--;
+    if(iRead==DATA_BUFFER_SIZE) iRead=0;
+  }
+  return false;
 }
 
 bool DataBuffer::Readout(long TS, pxhit &hit)
