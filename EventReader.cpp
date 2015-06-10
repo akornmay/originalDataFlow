@@ -116,7 +116,7 @@ void RootHits::GetHits(Event &event, int nEvents)
    if(rPointer==N_Entries) rPointer=0;
 	int event_nr=tree_event;
 	for(int i=0; i<nEvents; i++){
-        if (row == -1){
+        if (adc == -1){
             //cout << "This is an empty event" << endl;
             rPointer++;
         }else{
@@ -125,13 +125,13 @@ void RootHits::GetHits(Event &event, int nEvents)
          if(DETECTOR==BPIX){
 	         if(tree_ladder==ladder && tree_module>=MIN_MOD && tree_module<=MAX_MOD) {
       	 	   hit.timeStamp=event.clock;
-	            hit.trigger=event.trigger;
-               hit.pulseHeight=adc;
-	 	         hit.roc=row<80 ? (int)(col/52) : (int)(15-(col/52));
-	 	         if(hit.roc>=CHIPS_PER_MODULE) continue;
-		         hit.row=row<80 ? row+(col%2)*80 : 159-row+(1-col%2)*80;
-		         hit.dcol=row<80 ? (int)((col % 52) / 2) : (int)(((415-col) % 52)/2);
-		         event.hits[tree_module-1].push_back(hit);
+		   hit.trigger=event.trigger;
+		   hit.pulseHeight=adc;
+		   hit.roc=row<80 ? (int)(col/52) : (int)(15-(col/52));
+		   if(hit.roc>=CHIPS_PER_MODULE) continue;
+		   hit.row=row<80 ? row+(col%2)*80 : 159-row+(1-col%2)*80;
+		   hit.dcol=row<80 ? (int)((col % 52) / 2) : (int)(((415-col) % 52)/2);
+		   event.hits[tree_module-1].push_back(hit);
       		   allhits->Fill((int)col,(int) row);
 	         }
 	         HitTree->GetEntry(rPointer++);

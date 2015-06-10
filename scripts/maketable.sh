@@ -3,7 +3,7 @@
 
 rm $1
 
-for ii in 25 50 75 100 125 150 175 200 225 250
+for ii in 1 10 25 50 75 100 125 150 175 200 225 250
 
 do
     file=out${ii}MHz.txt
@@ -26,4 +26,16 @@ done
 
 root -q -b "plottable.cpp(\"$1\",${2})"
 
+if [ $3 == "particle" ]
+then
+    root -q -b "CodeResultComparison.cpp(\"$1\",\"../../PythonData/ParticleWBC${2}.dat\",${2})"
+fi
+if [ $3 == "xray" ]
+then
+    root -q -b "CodeResultComparison.cpp(\"$1\",\"../../PythonData/XrayWBC${2}.dat\",${2})"
+fi
 open Ineff_Detail_WBC${2}.pdf
+
+open Code_Comparison_WBC${2}.pdf
+
+
