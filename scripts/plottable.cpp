@@ -66,7 +66,7 @@ g[6]->SetPoint(g[6]->GetN(),pixelflu,100*(reset/totalhits));
 
 
 }
-int marksize = 2.5;
+double marksize = 2.5;
 //style
 g[0]->SetLineColor(1);
 g[0]->SetMarkerColor(1);
@@ -123,7 +123,7 @@ c.SetGrid();
 //style
 mg->Draw("ACP");
 //axis
-mg->GetXaxis()->SetLimits(0.0,250);
+mg->GetXaxis()->SetLimits(0.0,275.);
 
 //legend
  char legendtitle[256];
