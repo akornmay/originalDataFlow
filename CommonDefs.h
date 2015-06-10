@@ -61,6 +61,8 @@ const int rowsPerDC = 160;
 const int cd_token_pix_offset = 48;
 const int cd_token_pix_per_clk = 117;
 
+const int reset_bx = 3;
+
 const int dcRowReadoutBoundaries[] = { 18, 135, 160 };
 const int dcRowReadoutDelays[] = { 2, 3, 4 };
 

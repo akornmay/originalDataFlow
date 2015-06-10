@@ -43,11 +43,11 @@ int main(int argc, char **argv)
 //                   main loop over bunch crossings
 // *****************************************************************************************************	
 
-   for(clk=0; clk< MAX_EVENT; clk++){
-      if(clk<50000 && !(clk %5000)) cout <<"Processing event number "<< clk << " ....."<<endl;
-      else if(clk<100000 && !(clk %10000)) cout <<"Processing event number "<< clk << " ....."<<endl;
-      else if(!(clk %50000)) cout <<"Processing event number "<< clk << " ....."<<endl;
-
+   for(clk=1; clk< MAX_EVENT; clk++){
+     if(clk<50000 && !(clk %5000)) cout <<"Processing event number "<< clk << " ....."<<endl;
+     else if(clk<100000 && !(clk %10000)) cout <<"Processing event number "<< clk << " ....."<<endl;
+     else if(!(clk %50000)) cout <<"Processing event number "<< clk << " ....."<<endl;
+    
       if(last_trigger>0) last_trigger--;                   // two triggers cannot be within MINIMAL_TRIGGER_GAP clocks
 		
       int trigger=0;
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
       }
       iMod=Modules.begin();
       for(; iMod!=Modules.end(); iMod++)
-                iMod->AddHits(event);                      // add hits to Module
+	  iMod->AddHits(event);                      // add hits to Module
 
       iMod=Modules.begin();
       for(; iMod!=Modules.end(); iMod++) iMod->Clock();    // advance clock in module

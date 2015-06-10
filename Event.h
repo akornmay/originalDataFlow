@@ -24,7 +24,8 @@ class pxhit {
      return (aa<bb);
    };
    void clear() { timeStamp=0;} ;
-   void printhit();
+   void init() { timeStamp=-1; wrongTS = true; row = -17;} ;
+    void printhit();
 };
 
 typedef std::vector<pxhit> hit_vector;

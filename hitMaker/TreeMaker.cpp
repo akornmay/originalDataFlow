@@ -21,7 +21,7 @@ TreeMaker::TreeMaker() {
 }
 
 void TreeMaker::AddHit(short adc, short col, short row, bool fake) {
-  if (fake||((col>0)&&(col<nColumns)&&(row>0)&&(row<nRows))) {
+  if (fake||((col>=0)&&(col<nColumns)&&(row>=0)&&(row<nRows))) {     
     adc_ = adc;
     col_ = col;
     row_ = row;
